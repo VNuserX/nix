@@ -1,0 +1,74 @@
+* {
+    font: "JetBrainsMono Nerd Font 12";
+    bg: #1a1b26;
+    bg-alt: #24283b;
+    fg: #c0caf5;
+    fg-alt: #565f89;
+    accent: #7aa2f7;
+    red: #f7768e;
+    green: #9ece6a;
+    yellow: #e0af68;
+}
+
+window {
+    background-color: @bg;
+    border: 2px solid @accent;
+    border-radius: 12px;
+    padding: 8px;
+    margin: 10px;
+}
+
+mainbox {
+    background-color: transparent;
+    padding: 0;
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 0 0 8px 0;
+}
+
+prompt {
+    color: @accent;
+}
+
+entry {
+    color: @fg;
+}
+
+element {
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin: 2px 0;
+    background-color: transparent;
+    color: @fg;
+}
+
+element selected {
+    background-color: @accent;
+    color: @bg;
+}
+
+element normal {
+    background-color: transparent;
+}
+
+element urgent {
+    background-color: @red;
+    color: @bg;
+}
+
+element active {
+    background-color: @green;
+    color: @bg;
+}
+
+element-text {
+    background-color: transparent;
+}
+
+element-icon {
+    size: 1.2em;
+}

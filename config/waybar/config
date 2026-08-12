@@ -1,0 +1,121 @@
+{
+    "layer": "top", // Waybar at top layer
+    "position": "bottom", // Waybar at the bottom of your screen
+    "height": 23, // Waybar height
+    "spacing": 4,    // "width": 1366, // Waybar width
+    // Choose the order of the modules
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": [
+        "custom/kubernetes",
+        "custom/wlsunset",
+        "idle_inhibitor",
+        "pulseaudio",
+        "network",
+        "bluetooth",
+        "cpu",
+        "memory",
+        "battery",
+        "tray",
+        "clock"
+    ],
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": false,
+        "format": "{icon}",
+        "format-icons": {
+            "1:web": "",
+            "2:code": "",
+            "3:term": "",
+            "4:work": "",
+            "5:music": "",
+            "6:docs": "",
+            "urgent": "",
+            // "focused": "",
+            // "default": ""
+        }
+    },
+    "custom/kubernetes": {
+        "format": "{}",
+        //"max-length": 15,
+        "interval": 5,
+        "exec": "$HOME/.config/waybar/scripts/current_context.sh 2> /dev/null",
+        "return-type": "json"
+    },
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": " ",
+            "deactivated": " "
+        },
+        "start-activated" : true
+    },
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    "tray": {
+        // "icon-size": 21,
+        "spacing": 4
+    },
+    "clock": {
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "cpu": {
+        "format": "{usage}% "
+    },
+    "memory": {
+        "format": "{}% "
+    },
+    "battery": {
+        "bat": "BAT0",
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon}",
+        // "format-good": "", // An empty format will hide the module
+        // "format-full": "",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%)  ",
+        "format-ethernet": "{ifname}: {ipaddr}/{cidr}  ",
+        "format-disconnected": "Disconnected ⚠ ",
+    },
+    "pulseaudio": {
+        //"scroll-step": 1,
+        "format": "{volume}% {icon}",
+        "format-bluetooth": "{volume}% {icon}",
+        "format-muted": "{volume}% 🔇",
+        "format-icons": {
+            "headphones": "",
+            "handsfree": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", ""]
+        },
+        "on-click": "pwvucontrol",
+        "on-click-right": "~/.config/sway/scripts/toggle-mute.sh"
+
+    },
+    "bluetooth": {
+        "format": "",
+        "format-disabled": "󰂲",
+        "format-off": "󰂲",
+        "format-on": "",
+        "format-connected": "  {num_connections}",
+        "tooltip-format": "{controller_alias}: {status}",
+        "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+        "on-click": "blueman-manager"
+   },
+   "custom/wlsunset": {
+        "format": "{}",
+        "interval": 1,
+        "exec": "~/.config/waybar/scripts/wlsunset_status.sh",
+        "on-click": "~/.config/waybar/scripts/wlsunset_toggle.sh",
+        "signal": 1
+    }
+}

@@ -8,9 +8,8 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usbhid" "sdhci_pci" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "nvme" "usbhid" "usb_storage" "sd_mod" "sdhci_pci" ];
   boot.initrd.kernelModules = [ "dm-snapshot" "cryptd" ];
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-label/NixOS-Encrypted";
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
@@ -20,13 +19,13 @@
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/9491-CA90";
+    { device = "/dev/disk/by-uuid/9A1E-0B8B";
       fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
+      options = [ "fmask=0077" "dmask=0077" ];
     };
 
   swapDevices = [ ];
-
+  boot.initrd.luks.devices."cryptoroot".device = "/dev/disk/by-label/NixOS-Encrypted";
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.npu.enable = true;
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

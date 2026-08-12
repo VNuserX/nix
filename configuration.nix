@@ -1,5 +1,6 @@
-{ config, pkgs, ... }:
-{
+{ config, pkgs, lib, ... }:
+
+{ 
   imports = [
     ./hardware-configuration.nix
     ./modules/users/nuser.nix
@@ -8,6 +9,18 @@
     ./modules/desktop/sway.nix
     ./modules/services/pipewire.nix
   ];
+
+  # Bootloader settings
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.systemd-boot.configurationLimit = 5;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  # Automatic weekly garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
 
   modules = {
     user.enable = true;
@@ -31,51 +44,64 @@
     memoryPercent = 25;
   };
 
-   environment.variables.GTK_THEME = "Adwaita:dark";
+  environment.variables.GTK_THEME = "Adwaita:dark";
 
-  # Bluetooth hardware - enhanced
+  # Security & Bluetooth
+  security.rtkit.enable = true;
+
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = true;
     settings = {
       General = {
-        Enable = "Source,Sink,Media,Socket";
-        # Auto-detect and connect
-        AutoConnect = "true";
-        # Better audio support
-        MultiProfile = "multiple";
+        Experimental = true;
+        FastConnectable = true;
+      };
+      Policy = {
+        AutoEnable = true;
       };
     };
   };
 
-  # Since you already have pipewire module, ensure it has bluetooth support
-  # Check your ./modules/services/pipewire.nix file
-  # It should include:
+  nixpkgs.config.allowUnfree = true;
+
+  services.envfs.enable = true;
+  
+  # Blueman & Networking
+  services.blueman.enable = true;
+  services.resolved.enable = true;
+
+  # Power Management & Battery Monitoring (Fixes WirePlumber warning)
+  services.upower.enable = true;
+
+  # Audio (PipeWire primary, PulseAudio explicitly disabled)
   services.pipewire = {
     enable = true;
-    pulse.enable = true;
-    wireplumber.enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
+    pulse.enable = true;
   };
+  hardware.pulseaudio.enable = false;
 
-  # Blueman service
-  services.blueman.enable = true;
-
-  # Audio group for your user
+  # Default Shell & User Groups
+  users.defaultUserShell = pkgs.zsh;
   users.users.nuser = {
-    extraGroups = [ "audio" "bluetooth" ];
+    shell = pkgs.zsh;
+    extraGroups = [ "wheel" "networkmanager" "audio" "bluetooth" ];
   };
 
-   programs.dconf = {
-     enable = true;
-     profiles.user.databases = [{
-       settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
-     }];
-   };
-  # Core system settings
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  programs.dconf = {
+    enable = true;
+    profiles.user.databases = [{
+      settings."org/gnome/desktop/interface".color-scheme = "prefer-dark";
+    }];
+  };
+
+  # Prevent Twingate from auto-starting on boot or rebuilds
+  systemd.services.twingate.wantedBy = lib.mkForce [ ];
+
+  # Secure /boot Permissions
+  fileSystems."/boot".options = lib.mkForce [ "fmask=0077" "dmask=0077" ];
 
   networking.hostName = "nixos-nuser";
   networking.networkmanager.enable = true;
@@ -85,8 +111,12 @@
   # Security
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
+  services.gnome.gcr-ssh-agent.enable = false; # Fixes the assertion error
 
-  # Applications
+  # Modern SSH agent
+  programs.ssh.startAgent = true;
+
+  # System Packages
   environment.systemPackages = with pkgs; [
     tree
     bash 
@@ -116,6 +146,7 @@
     ripgrep
     fd
   ];
+
   fonts.packages = with pkgs; [
     font-awesome_4
     nerd-fonts.jetbrains-mono
@@ -123,9 +154,11 @@
     nerd-fonts.hack
     font-awesome
   ];
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
   ];
+
   system.stateVersion = "26.05";
 }

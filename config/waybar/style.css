@@ -1,0 +1,157 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "Ubuntu Nerd Font";
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: white;
+}
+
+#window {
+    font-weight: normal;
+    font-family: "Ubuntu";
+}
+/*
+#workspaces {
+    padding: 0 5px;
+}
+*/
+
+
+/* Base container style */
+#custom-kubernetes {
+    padding: 2px 10px;
+    margin: 3px 4px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+#custom-kubernetes.test {
+    background-color: rgba(166, 227, 161, 0.15); /* Soft mint tint */
+    color: #a6e3a1;                              /* Bright green text */
+    border: 1px solid rgba(166, 227, 161, 0.3);
+}
+
+#custom-kubernetes.build {
+    background-color: rgba(203, 166, 247, 0.15); /* Soft lavender tint */
+    color: #cba6f7;                              /* Bright purple text */
+    border: 1px solid rgba(203, 166, 247, 0.3);
+}
+
+#custom-kubernetes.office {
+    background-color: rgba(250, 179, 135, 0.15); /* Soft peach tint */
+    color: #fab387;                              /* Bright gold/peach text */
+    border: 1px solid rgba(250, 179, 135, 0.3);
+}
+
+#custom-kubernetes.prod {
+    border-radius: 10px;
+    padding: 2px 10px;
+    margin: 3px 4px;
+    font-weight: bold;
+    animation: pureRedPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes pureRedPulse {
+    0% {
+        background-color: rgba(243, 139, 168, 0.2);  /* Translucent Rose-Red */
+        color: #f38ba8;                               /* Soft Red Text */
+        border: 1px solid rgba(243, 139, 168, 0.4);
+        box-shadow: 0 0 4px rgba(243, 139, 168, 0.2);
+    }
+    50% {
+        background-color: rgba(255, 40, 70, 0.45);   /* Vivid Red Tint */
+        color: #ff3355;                               /* Bright Neon Red Text */
+        border: 1px solid rgba(255, 51, 85, 0.9);
+        box-shadow: 0 0 14px rgba(255, 40, 70, 0.7); /* Glowing Red aura */
+    }
+    100% {
+        background-color: rgba(243, 139, 168, 0.2);
+        color: #f38ba8;
+        border: 1px solid rgba(243, 139, 168, 0.4);
+        box-shadow: 0 0 4px rgba(243, 139, 168, 0.2);
+    }
+}
+
+#workspaces button {
+    padding: 0 5px;
+    background: transparent;
+    color: white;
+    border-top: 2px solid transparent;
+}
+
+#workspaces button.focused {
+    color: #c9545d;
+    border-top: 2px solid #c9545d;
+}
+
+#mode {
+    background: #64727D;
+    border-bottom: 3px solid white;
+}
+
+#clock, #battery, #cpu, #memory, #network, #pulseaudio, #custom-spotify, #tray, #mode {
+    padding: 0 3px;
+    margin: 0 2px;
+}
+
+#clock {
+    font-weight: bold;
+}
+
+#battery {
+}
+
+#battery icon {
+    color: red;
+}
+
+#battery.charging {
+}
+
+@keyframes blink {
+    to {
+        background-color: #ffffff;
+        color: black;
+    }
+}
+
+#battery.warning:not(.charging) {
+    color: white;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#cpu {
+}
+
+#memory {
+}
+
+#network {
+}
+
+#network.disconnected {
+    background: #f53c3c;
+}
+
+#pulseaudio {
+}
+
+#pulseaudio.muted {
+}
+
+#custom-spotify {
+    color: rgb(102, 220, 105);
+}
+
+#tray {
+}
+
