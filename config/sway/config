@@ -44,7 +44,7 @@ bindsym $mod+q kill
 bindsym $mod+d exec $menu
 
 # Clipboard history
-bindsym $mod+z exec cliphist list | rofi -dmenu | cliphist decode | wl-copy
+bindsym $mod+z exec cliphist list | rofi -dmenu -i | cliphist decode | wl-copy
 
 # Screenshots
 bindsym $mod+x exec grim -g "$(slurp)" - | swappy -f -

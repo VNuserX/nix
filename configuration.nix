@@ -154,6 +154,7 @@
     ripgrep
     fd
     gnupg
+    terraform-docs
   ];
 
   fonts.packages = with pkgs; [
