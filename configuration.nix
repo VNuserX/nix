@@ -66,7 +66,15 @@
   nixpkgs.config.allowUnfree = true;
 
   services.envfs.enable = true;
-  
+
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      "*/5 * * * *  nuser  $HOME/vault/sync-passwords.sh"
+      "0 17 * * *   nuser  $HOME/scripts/backup.sh"
+    ];
+  };
+
   # Blueman & Networking
   services.blueman.enable = true;
   services.resolved.enable = true;
@@ -81,7 +89,7 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
 
   # Default Shell & User Groups
   users.defaultUserShell = pkgs.zsh;
@@ -145,6 +153,7 @@
     unzip
     ripgrep
     fd
+    gnupg
   ];
 
   fonts.packages = with pkgs; [
