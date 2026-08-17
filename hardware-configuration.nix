@@ -19,14 +19,15 @@
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/9A1E-0B8B";
+    { device = "/dev/disk/by-uuid/A664-8A8A";
       fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
+      options = [ "fmask=0022" "dmask=0022" ];
     };
 
   swapDevices = [ ];
-  boot.initrd.luks.devices."cryptoroot".device = "/dev/disk/by-label/NixOS-Encrypted";
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+  boot.initrd.luks.devices."cryptoroot".device = "/dev/disk/by-label/NixOS-Encrypted";
   hardware.cpu.intel.npu.enable = true;
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

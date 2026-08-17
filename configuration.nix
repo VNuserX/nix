@@ -15,13 +15,19 @@
   boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Automatic weekly garbage collection
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
-  };
+  nix = {
+    settings = {
+      auto-optimise-store = true;
+      experimental-features = [ "nix-command" "flakes" ];
+    };
 
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      persistent = true;
+      options = "--delete-older-than 30d";
+    };
+  };
   modules = {
     user.enable = true;
     user.name = "nuser";
@@ -165,10 +171,6 @@
     font-awesome
   ];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
 
   system.stateVersion = "26.05";
 }
