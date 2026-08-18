@@ -257,16 +257,18 @@ do
     },
   }
 
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  require('tokyonight').setup {
-    transparent = true,
-    styles = {
-      comments = { italic = false },
-      sidebars = "transparent",
-      floats = "transparent",
+  -- [[ Colorscheme: Carbonfox (Nightfox) ]]
+  vim.pack.add { gh 'EdenEast/nightfox.nvim' }
+  require('nightfox').setup {
+    options = {
+      transparent = true,
+      styles = {
+        comments = 'NONE',
+      },
+      dim_inactive = false,
     },
   }
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'carbonfox'
 
   vim.pack.add { gh 'folke/todo-comments.nvim' }
   require('todo-comments').setup { signs = false }
