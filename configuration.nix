@@ -28,6 +28,7 @@
       options = "--delete-older-than 30d";
     };
   };
+
   modules = {
     user.enable = true;
     user.name = "nuser";
@@ -71,7 +72,19 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # Shell Shebang & Dynamic Linking Fixes for Mason / LSPs
   services.envfs.enable = true;
+
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      zlib
+      zstd
+      stdenv.cc.cc
+      curl
+      openssl
+    ];
+  };
 
   services.cron = {
     enable = true;
@@ -170,7 +183,6 @@
     nerd-fonts.hack
     font-awesome
   ];
-
 
   system.stateVersion = "26.05";
 }

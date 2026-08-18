@@ -18,7 +18,6 @@ in
       enableCompletion = true;
       autosuggestions.enable = true;
       syntaxHighlighting.enable = true;
-
       promptInit = lib.mkIf cfg.powerlevel10k ''
         source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
       '';
@@ -51,6 +50,11 @@ in
 
         # 6. Load Powerlevel10k config if present
         [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+        # for autocomplete view-secret
+        source <(kubectl completion zsh)
+        alias k=kubectl
+        compdef __start_kubectl k
       '';
     };
   };

@@ -82,6 +82,9 @@
       # Kubernetes & Cloud Infrastructure
       kubectl
       kubectl-view-secret
+      (writeShellScriptBin "kubectl_complete-view_secret" ''
+        kubectl view-secret __complete "$@"
+      '')
       kubectx
       kubernetes-helm
       terraform
