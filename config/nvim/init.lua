@@ -112,6 +112,9 @@ do
   vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
   -- [[ Quality-of-Life Keymaps ]]
+  -- Open Netrw file explorer in current buffer's directory
+  vim.keymap.set('n', '<leader>e', ':Ex %:p:h<CR>', { desc = 'Open File [E]xplorer (current dir)' })
+
   -- Preserve paste buffer when pasting over visual selection
   vim.keymap.set('x', 'p', [["_dP]], { desc = 'Paste over selection without losing clipboard' })
 
@@ -233,6 +236,7 @@ do
   vim.pack.add { gh 'NMAC427/guess-indent.nvim' }
   require('guess-indent').setup {}
 
+  -- [[ gitsigns.nvim Setup with Blame & Keymaps ]]
   vim.pack.add { gh 'lewis6991/gitsigns.nvim' }
   require('gitsigns').setup {
     signs = {
@@ -242,6 +246,56 @@ do
       topdelete = { text = '‾' },
       changedelete = { text = '~' },
     },
+    current_line_blame = true, -- Enable inline git blame
+    current_line_blame_opts = {
+      virt_text = true,
+      virt_text_pos = 'eol',
+      delay = 300,
+      ignore_whitespace = false,
+    },
+    current_line_blame_formatter = '<author>, <author_time:%Y-%m-%d> - <summary>',
+    on_attach = function(bufnr)
+      local gs = package.loaded.gitsigns
+
+      local function map(mode, l, r, opts)
+        opts = opts or {}
+        opts.buffer = bufnr
+        vim.keymap.set(mode, l, r, opts)
+      end
+
+      -- Navigation between hunks
+      map('n', ']c', function()
+        if vim.wo.diff then return ']c' end
+        vim.schedule(function() gs.next_hunk() end)
+        return '<Ignore>'
+      end, { expr = true, desc = 'Jump to next git hunk' })
+
+      map('n', '[c', function()
+        if vim.wo.diff then return '[c' end
+        vim.schedule(function() gs.prev_hunk() end)
+        return '<Ignore>'
+      end, { expr = true, desc = 'Jump to previous git hunk' })
+
+      -- Actions (<leader>h*)
+      map('n', '<leader>hs', gs.stage_hunk, { desc = '[H]unk [S]tage' })
+      map('n', '<leader>hr', gs.reset_hunk, { desc = '[H]unk [R]eset' })
+      map('v', '<leader>hs', function() gs.stage_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = '[H]unk [S]tage selection' })
+      map('v', '<leader>hr', function() gs.reset_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = '[H]unk [R]eset selection' })
+      map('n', '<leader>hS', gs.stage_buffer, { desc = '[H]unk Stage Buffer' })
+      map('n', '<leader>hu', gs.undo_stage_hunk, { desc = '[H]unk [U]ndo stage' })
+      map('n', '<leader>hR', gs.reset_buffer, { desc = '[H]unk [R]eset Buffer' })
+      map('n', '<leader>hp', gs.preview_hunk, { desc = '[H]unk [P]review' })
+      map('n', '<leader>hb', function() gs.blame_line { full = true } end, { desc = '[H]unk [B]lame full line' })
+      map('n', '<leader>hd', gs.diffthis, { desc = '[H]unk [D]iff index' })
+      map('n', '<leader>hD', function() gs.diffthis '~' end, { desc = '[H]unk [D]iff against last commit' })
+
+      -- Toggles (<leader>t*)
+      map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = '[T]oggle inline git [B]lame' })
+      map('n', '<leader>td', gs.toggle_deleted, { desc = '[T]oggle deleted lines view' })
+
+      -- Text object for gitsigns
+      map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
+    end,
   }
 
   vim.pack.add { gh 'folke/which-key.nvim' }

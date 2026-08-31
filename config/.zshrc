@@ -143,3 +143,7 @@ EOF
         kubectl exec -it ${POD_NAME} -- sh -c "cd /mnt/store && exec sh"
     )
 }
+
+garage() {
+  kubectl exec -n garage -c garage -it garage-0 -- ./garage "$@"
+}
