@@ -64,6 +64,7 @@
 
       # Development Tools
       jq
+      yq
       bun
       gnumake
       go

@@ -53,6 +53,9 @@
 
   environment.variables.GTK_THEME = "Adwaita:dark";
 
+  # Virtualization
+  virtualisation.docker.enable = true;
+
   # Security & Bluetooth
   security.rtkit.enable = true;
 
@@ -86,11 +89,12 @@
     ];
   };
 
+  # Cron Jobs (using absolute paths since cron does not expand $HOME)
   services.cron = {
     enable = true;
     systemCronJobs = [
-      "*/5 * * * *  nuser  $HOME/vault/sync-passwords.sh"
-      "0 17 * * *   nuser  $HOME/scripts/backup.sh"
+      "*/5 * * * *  nuser  /home/nuser/vault/sync-passwords.sh"
+      "0 17 * * *   nuser  /home/nuser/scripts/backup.sh"
     ];
   };
 
@@ -114,7 +118,7 @@
   users.defaultUserShell = pkgs.zsh;
   users.users.nuser = {
     shell = pkgs.zsh;
-    extraGroups = [ "wheel" "networkmanager" "audio" "bluetooth" ];
+    extraGroups = [ "wheel" "networkmanager" "audio" "bluetooth" "docker" ];
   };
 
   programs.dconf = {
@@ -135,13 +139,18 @@
 
   time.timeZone = "Europe/Riga";
 
-  # Security
+  # Security & Key Agents
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
-  services.gnome.gcr-ssh-agent.enable = false; # Fixes the assertion error
+  services.gnome.gcr-ssh-agent.enable = false; # Fixes SSH agent conflict assertion
 
-  # Modern SSH agent
   programs.ssh.startAgent = true;
+
+  # GPG Agent with Pinentry (Fixes 'No pinentry' decryption error)
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-curses;
+  };
 
   # System Packages
   environment.systemPackages = with pkgs; [
