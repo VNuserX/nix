@@ -631,6 +631,7 @@ do
   require 'kickstart.plugins.indent_line'
   require 'kickstart.plugins.lint'
   require 'kickstart.plugins.autopairs'
+  require 'custom.plugins.codecompanion'
 end
 
 -- vim: ts=2 sts=2 sw=2 et

@@ -7,6 +7,7 @@
     ./modules/shells/zsh.nix
     ./modules/tools/fzf.nix
     ./modules/desktop/sway.nix
+    ./modules/services/ollama.nix
     ./modules/services/pipewire.nix
   ];
 
@@ -155,6 +156,7 @@
   # System Packages
   environment.systemPackages = with pkgs; [
     tree
+    killall
     bash 
     vim
     neovim
