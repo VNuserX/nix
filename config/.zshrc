@@ -45,7 +45,7 @@ alias gsync='git stash && git pull && git stash pop'
 alias gtag='git --no-pager tag -n $(git describe --tags `git rev-list --tags --max-count=1`)'
 alias gcommit='git --no-pager log -1 -p apps-versions.tf | tee > /tmp/diff; python ~/working/python/git_commit.py'
 alias glog='git --no-pager log --format=%B -n 1'
-
+alias gshort='git log -1 --format="%h"'
 
 # Kubernetes Aliases & Helpers
 alias k='kubectl'
@@ -145,5 +145,139 @@ EOF
 }
 
 garage() {
-  kubectl exec -n garage -c garage -it garage-0 -- ./garage "$@"
+  kubectl exec -c garage -it garage-0 -- ./garage "$@"
+}
+
+anonymize_logs() {
+  sed -E \
+    -e 's/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:[0-9]+)?/****/g' \
+    -e 's/(key )[A-Za-z0-9_-]+/\1****/g' \
+    -e 's/(uploadId=)[A-Za-z0-9_-]+/\1****/g' \
+    -e 's/[a-f0-9]{40}/****/g' \
+    "${1:-/dev/stdin}"
+}
+
+kdebug() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: kdebug <pod-name> [target-container] [debug-image] [-- <command...>]"
+    echo "Examples:"
+    echo "  kdebug garage-0"
+    echo "  kdebug garage-0 -- ls -la /proc/1/root"
+    echo "  kdebug garage-0 garage busybox -- ps aux"
+    return 1
+  fi
+
+  local POD_NAME="$1"
+  shift
+
+  local TARGET_CONTAINER=""
+  local DEBUG_IMAGE="busybox"
+  local CUSTOM_CMD=()
+
+  if [[ -n "$1" && "$1" != "--" ]]; then
+    TARGET_CONTAINER="$1"
+    shift
+  fi
+
+  if [[ -n "$1" && "$1" != "--" ]]; then
+    DEBUG_IMAGE="$1"
+    shift
+  fi
+
+  if [[ "$1" == "--" ]]; then
+    shift
+  fi
+
+  if [[ $# -gt 0 ]]; then
+    CUSTOM_CMD=("$@")
+  fi
+
+  if [[ -z "$TARGET_CONTAINER" ]]; then
+    TARGET_CONTAINER=$(kubectl get pod "$POD_NAME" -o jsonpath='{.spec.containers[0].name}' 2>/dev/null)
+  fi
+
+  local INIT_CMD='
+    PID=$(ps aux | awk '\''!/PID|sh|bash|ps|grep/ {print $1; exit}'\'')
+    PID=${PID:-1}
+    export TARGET_PID=$PID
+    echo "==> Target Process PID: $TARGET_PID"
+    if [ -d "/proc/$TARGET_PID/root" ]; then
+      cd "/proc/$TARGET_PID/root"
+      echo "==> Switched working directory to: $(pwd)"
+    fi
+    exec /bin/sh
+  '
+  local CMD=(kubectl debug -it "$POD_NAME" --image="$DEBUG_IMAGE")
+
+  if [[ -n "$TARGET_CONTAINER" ]]; then
+    CMD+=(--target="$TARGET_CONTAINER")
+  fi
+
+  if [[ ${#CUSTOM_CMD[@]} -gt 0 ]]; then
+    CMD+=(-- "${CUSTOM_CMD[@]}")
+  else
+    CMD+=(-- /bin/sh -c "$INIT_CMD")
+  fi
+
+  echo "==> Triggered Command:"
+  echo "    ${CMD[*]}"
+  echo ""
+
+  "${CMD[@]}"
+}
+
+tftarget() {
+  local file="$1"
+  local keyword="$2"
+  local action="${3:-print}"  # Defaults to 'print'
+
+  if [[ -z "$file" || -z "$keyword" ]]; then
+    echo "Usage: tftarget <file> <keyword> [print|plan|apply]"
+    return 1
+  fi
+
+  if [[ ! -f "$file" ]]; then
+    echo "Error: File '$file' not found."
+    return 1
+  fi
+
+  local -a raw_targets targets
+
+  # 1. Parse Terraform plan output (# resource.address)
+  raw_targets+=(${(f)"$(grep -E '^[[:space:]]*#[[:space:]]+' "$file" | awk '{print $2}')"})
+
+  # 2. Parse HCL resource blocks (resource "type" "name" {)
+  raw_targets+=(${(f)"$(grep -E '^[[:space:]]*resource[[:space:]]+' "$file" | awk -F'"' '{print $2 "." $4}')"})
+
+  # 3. Parse direct address lines (e.g. kubernetes_namespace_v1.zorro)
+  raw_targets+=(${(f)"$(grep -E '^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+' "$file")"})
+
+  # Filter by keyword (case-insensitive), deduplicate
+  targets=(${(u)${(f)"$(printf '%s\n' "${raw_targets[@]}" | grep -i -- "$keyword" | sort -u)"}})
+
+  if (( ${#targets} == 0 || ${#targets[1]} == 0 )); then
+    echo "No targets found matching '$keyword' in '$file'."
+    return 1
+  fi
+
+  local -a target_flags
+  for t in "${targets[@]}"; do
+    target_flags+=("-target=$t")
+  done
+
+  case "$action" in
+    print)
+      # Prints the command string ready to copy or pipe
+      echo "terraform plan ${target_flags[*]}"
+      ;;
+    plan|apply)
+      echo "Executing: terraform $action ${target_flags[*]}"
+      echo ""
+      terraform "$action" "${target_flags[@]}"
+      ;;
+    *)
+      echo "Invalid action '$action'. Allowed values: print (default), plan, apply."
+      return 1
+      ;;
+  esac
 }
