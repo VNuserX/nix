@@ -7,6 +7,7 @@
     ./modules/shells/zsh.nix
     ./modules/tools/fzf.nix
     ./modules/desktop/sway.nix
+    ./modules/desktop/rofi.nix
     ./modules/services/ollama.nix
     ./modules/services/pipewire.nix
   ];
