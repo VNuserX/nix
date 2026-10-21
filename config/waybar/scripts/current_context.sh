@@ -15,6 +15,9 @@ elif
 elif 
     [[ `echo $output|grep "ADMIN@BUILDER|"` != "" ]]; then
 	printf "{\"text\":\"⎈ $output\",\"class\":\"build\"}";
+elif 
+    [[ `echo $output|grep "MONITORING|"` != "" ]]; then
+	printf "{\"text\":\"⎈ $output\",\"class\":\"monitoring\"}";
 elif
     [[ `echo $output|grep "PRODUCTION|"` != "" ]]; then
 	printf "{\"text\":\"⎈ $output\",\"class\":\"prod\"}";
