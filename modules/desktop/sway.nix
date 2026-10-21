@@ -43,8 +43,18 @@
       }
     '';
 
-    # 4. Enable Sway Window Manager
-    programs.sway.enable = true;
+    # 4. Enable Sway Window Manager & Environment Setup
+    programs.sway = {
+      enable = true;
+      wrapperFeatures.gtk = true; # Applies GTK settings and schemas
+      extraSessionCommands = ''
+        export XDG_CURRENT_DESKTOP=sway
+        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP DISPLAY SWAYSOCK
+      '';
+    };
+
+    # PAM configuration required for swaylock to verify passwords
+    security.pam.services.swaylock = {};
 
     # 5. System Packages
     environment.systemPackages = with pkgs; [
