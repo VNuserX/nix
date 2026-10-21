@@ -281,3 +281,12 @@ tftarget() {
       ;;
   esac
 }
+
+qfind() {
+  local file="$HOME/working/scripts/favorit_commads"
+  if [ -z "$1" ]; then
+    cat "$file" | fzf
+  else
+    grep -i "$1" "$file" | fzf
+  fi
+}
