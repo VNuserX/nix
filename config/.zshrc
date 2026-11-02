@@ -290,3 +290,13 @@ qfind() {
     grep -i "$1" "$file" | fzf
   fi
 }
+
+rep() {
+    local delay=3
+    [[ "$1" =~ ^[0-9]+s?$ ]] && delay="${1%s}" && shift
+
+    while true; do
+        "$@"
+        sleep "${delay}s"
+    done
+}
