@@ -43,6 +43,7 @@ ff() {
 alias gdiff='$HOME/working/scripts/git_tag_commit_diff_deep.sh'
 alias gsync='git stash && git pull && git stash pop'
 alias gtag='git --no-pager tag -n $(git describe --tags `git rev-list --tags --max-count=1`)'
+alias gtagfull='git show -s $(git describe --tags `git rev-list --tags --max-count=1`)'
 alias gcommit='git --no-pager log -1 -p apps-versions.tf | tee > /tmp/diff; python ~/working/python/git_commit.py'
 alias glog='git --no-pager log --format=%B -n 1'
 alias gshort='git log -1 --format="%h"'
@@ -300,3 +301,4 @@ rep() {
         sleep "${delay}s"
     done
 }
+
