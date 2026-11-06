@@ -31,6 +31,17 @@
     };
   };
 
+  # Enable Flatpak
+  services.flatpak.enable = true;
+
+  # Enable XDG Desktop Portals for Wayland / Sway (required for file dialogs, keyring & screensharing)
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = [ "gtk" ];
+  };
+
   modules = {
     user.enable = true;
     user.name = "nuser";
@@ -163,7 +174,6 @@
     neovim
     git
     firefox
-    brave
     keepassxc
     rofi
     thunar
@@ -186,6 +196,7 @@
     fd
     gnupg
     terraform-docs
+    argo-workflows
   ];
 
   fonts.packages = with pkgs; [
