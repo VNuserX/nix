@@ -34,6 +34,42 @@
   # Enable Flatpak
   services.flatpak.enable = true;
 
+  # Brave managed policies
+  environment.etc."brave/policies/managed/policies.json".text =
+    builtins.toJSON {
+      # Rewards, Wallet and Web3
+      BraveRewardsDisabled = true;
+      BraveWalletDisabled = true;
+
+      # AI, VPN and additional services
+      BraveAIChatEnabled = false;
+      BraveVPNDisabled = true;
+      BraveNewsDisabled = true;
+      BraveTalkDisabled = true;
+      BraveSpeedreaderEnabled = false;
+      BraveWaybackMachineEnabled = false;
+      BravePlaylistEnabled = false;
+      TorDisabled = true;
+
+      # Telemetry
+      BraveP3AEnabled = false;
+      BraveStatsPingEnabled = false;
+      BraveWebDiscoveryEnabled = false;
+      MetricsReportingEnabled = false;
+
+      # Autofill and browser features
+      PasswordManagerEnabled = false;
+      AutofillAddressEnabled = false;
+      AutofillCreditCardEnabled = false;
+      TranslateEnabled = false;
+    };
+
+  # System-level Flatpak overrides
+  systemd.tmpfiles.rules = [
+    "d /var/lib/flatpak/overrides 0755 root root -"
+    "f+ /var/lib/flatpak/overrides/com.brave.Browser 0644 root root - [Context]\\n devices=dri;\\n filesystems=host-etc:ro;/nix/store:ro;\\n sockets=!pcsc;!cups;\\n features=!bluetooth;"
+  ];
+
   # Enable XDG Desktop Portals for Wayland / Sway (required for file dialogs, keyring & screensharing)
   xdg.portal = {
     enable = true;
@@ -155,11 +191,11 @@
   # Security & Key Agents
   security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
-  services.gnome.gcr-ssh-agent.enable = false; # Fixes SSH agent conflict assertion
+  services.gnome.gcr-ssh-agent.enable = false;
 
   programs.ssh.startAgent = true;
 
-  # GPG Agent with Pinentry (Fixes 'No pinentry' decryption error)
+  # GPG Agent with Pinentry
   programs.gnupg.agent = {
     enable = true;
     pinentryPackage = pkgs.pinentry-curses;
