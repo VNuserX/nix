@@ -85,6 +85,7 @@
       perl5Packages.Carton
       python3
       uv
+      libreoffice
       rustup
       stern
       viddy
