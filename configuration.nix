@@ -34,48 +34,21 @@
   # Enable Flatpak
   services.flatpak.enable = true;
 
-  # Brave managed policies
-  environment.etc."brave/policies/managed/policies.json".text =
-    builtins.toJSON {
-      # Rewards, Wallet and Web3
-      BraveRewardsDisabled = true;
-      BraveWalletDisabled = true;
-
-      # AI, VPN and additional services
-      BraveAIChatEnabled = false;
-      BraveVPNDisabled = true;
-      BraveNewsDisabled = true;
-      BraveTalkDisabled = true;
-      BraveSpeedreaderEnabled = false;
-      BraveWaybackMachineEnabled = false;
-      BravePlaylistEnabled = false;
-      TorDisabled = true;
-
-      # Telemetry
-      BraveP3AEnabled = false;
-      BraveStatsPingEnabled = false;
-      BraveWebDiscoveryEnabled = false;
-      MetricsReportingEnabled = false;
-
-      # Autofill and browser features
-      PasswordManagerEnabled = false;
-      AutofillAddressEnabled = false;
-      AutofillCreditCardEnabled = false;
-      TranslateEnabled = false;
-    };
-
-  # System-level Flatpak overrides
-  systemd.tmpfiles.rules = [
-    "d /var/lib/flatpak/overrides 0755 root root -"
-    "f+ /var/lib/flatpak/overrides/com.brave.Browser 0644 root root - [Context]\\n devices=dri;\\n filesystems=host-etc:ro;/nix/store:ro;\\n sockets=!pcsc;!cups;\\n features=!bluetooth;"
-  ];
-
   # Enable XDG Desktop Portals for Wayland / Sway (required for file dialogs, keyring & screensharing)
   xdg.portal = {
     enable = true;
     wlr.enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
+    ];
     config.common.default = [ "gtk" ];
+  };
+
+  # Force native Wayland & Intel iHD VA-API driver
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    LIBVA_DRIVER_NAME = "iHD";
   };
 
   modules = {
@@ -122,6 +95,17 @@
     };
   };
 
+  # Hardware Graphics Acceleration (Intel)
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = with pkgs; [
+      intel-media-driver   # Hardware VA-API decoding (Broadwell / Gen 8+)
+      libva-utils          # Provides vainfo for diagnostics
+      vpl-gpu-rt           # OneVPL runtime for Intel Quick Sync
+    ];
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   # Shell Shebang & Dynamic Linking Fixes for Mason / LSPs
@@ -151,7 +135,7 @@
   services.blueman.enable = true;
   services.resolved.enable = true;
 
-  # Power Management & Battery Monitoring (Fixes WirePlumber warning)
+  # Power Management & Battery Monitoring
   services.upower.enable = true;
 
   # Audio (PipeWire primary, PulseAudio explicitly disabled)
@@ -160,6 +144,15 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+
+    # Prevents the mod.x11-bell SIGSEGV crash when Bluetooth connects or Xwayland resets
+    extraConfig.pipewire = {
+      "99-disable-bell" = {
+        "context.properties" = {
+          "module.x11.bell" = false;
+        };
+      };
+    };
   };
   services.pulseaudio.enable = false;
 
@@ -203,6 +196,7 @@
 
   # System Packages
   environment.systemPackages = with pkgs; [
+    brave
     tree
     killall
     bash 
