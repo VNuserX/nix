@@ -31,8 +31,42 @@
     };
   };
 
-  # Enable Flatpak
-  services.flatpak.enable = true;
+  # Declarative Brave Debloat & Hardening Policy (Modern)
+  environment.etc."brave/policies/managed/debloat.json".text = builtins.toJSON {
+    # 1. Disable Crypto / Web3
+    BraveRewardsDisabled = true;
+    BraveWalletDisabled = true;
+
+    # 2. Disable AI & Built-in Services
+    BraveAIChatEnabled = false;       # Disables Brave Leo AI
+    BraveVPNDisabled = true;          # Disables Brave VPN integration & promotions
+    TorDisabled = true;               # Disables Tor private windows
+    BraveNewsDisabled = true;         # Disables Brave News feed
+    BraveTalkDisabled = true;         # Disables Brave Talk WebRTC service
+    BraveSpeedreaderEnabled = false;
+
+    # 3. Strip Telemetry & Background Pings
+    BraveP3AEnabled = false;          # Privacy-Preserving Product Analytics
+    BraveStatsPingEnabled = false;    # Daily active user ping
+    BraveWebDiscoveryEnabled = false; # Search query collection
+    MetricsReportingEnabled = false;  # Chromium crash/metrics reports
+    FeedbackSurveysEnabled = false;
+
+    # 4. Browser Cleanliness & Modern Autofill Blocking
+    PasswordManagerEnabled = false;   # Prevents saving passwords (for KeePassXC)
+    BackgroundModeEnabled = false;    # Prevents lingering in RAM when closed
+    AutofillSettings = [              # Modern replacement for legacy autofill flags
+      {
+        url_pattern = "*";
+        blocked_types = [
+          "contact_info"
+          "payments"
+          "identity_docs"
+          "travel"
+        ];
+      }
+    ];
+  };
 
   # Enable XDG Desktop Portals for Wayland / Sway (required for file dialogs, keyring & screensharing)
   xdg.portal = {
