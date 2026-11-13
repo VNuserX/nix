@@ -53,7 +53,7 @@
     FeedbackSurveysEnabled = false;
 
     # 4. Browser Cleanliness & Modern Autofill Blocking
-    PasswordManagerEnabled = false;   # Prevents saving passwords (for KeePassXC)
+    PasswordManagerEnabled = true;   # Prevents saving passwords (for KeePassXC)
     BackgroundModeEnabled = false;    # Prevents lingering in RAM when closed
     AutofillSettings = [              # Modern replacement for legacy autofill flags
       {
@@ -250,6 +250,7 @@
     btop
     blueman
     networkmanagerapplet
+    joplin-desktop
     tree-sitter
     gcc
     gnumake

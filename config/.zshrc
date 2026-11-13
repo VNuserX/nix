@@ -16,7 +16,6 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 if command -v tenv &>/dev/null; then
   export PATH="$(tenv update-path):$PATH"
 fi
-
 # Safely load direnv hook if installed
 if command -v direnv &>/dev/null; then
   eval "$(direnv hook zsh)"
@@ -47,6 +46,8 @@ alias gtagfull='git show -s $(git describe --tags `git rev-list --tags --max-cou
 alias gcommit='git --no-pager log -1 -p apps-versions.tf | tee > /tmp/diff; python ~/working/python/git_commit.py'
 alias glog='git --no-pager log --format=%B -n 1'
 alias gshort='git log -1 --format="%h"'
+
+
 
 # Kubernetes Aliases & Helpers
 alias k='kubectl'
@@ -301,4 +302,4 @@ rep() {
         sleep "${delay}s"
     done
 }
-
+[[ -f "$HOME/working/scripts/redmine.sh" ]] && source "$HOME/working/scripts/redmine.sh"
