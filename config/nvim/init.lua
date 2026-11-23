@@ -366,6 +366,16 @@ do
   vim.pack.add(telescope_plugins)
 
   require('telescope').setup {
+    defaults = {
+      layout_strategy = 'horizontal',
+      layout_config = {
+        width = 0.95,
+        height = 0.95,
+        preview_width = 0.55,
+        prompt_position = 'bottom', -- Search input at the bottom
+      },
+      sorting_strategy = 'descending', -- Best matches appear directly above the search input
+    },
     extensions = {
       ['ui-select'] = { require('telescope.themes').get_dropdown() },
       undo = {
@@ -375,7 +385,6 @@ do
       },
     },
   }
-
   pcall(require('telescope').load_extension, 'fzf')
   pcall(require('telescope').load_extension, 'ui-select')
   pcall(require('telescope').load_extension, 'undo')
